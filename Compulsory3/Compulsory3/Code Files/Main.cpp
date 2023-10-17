@@ -6,8 +6,9 @@
 
 int main()
 {
-	FlexGraph test(5);
-	test.add_Vertex("B", 9, "ab", 100);
+	FlexGraph<int> test(5);
+	test.create_VertexWithEdge("Bergen", 11, "A", 2);
+	test.create_VertexWithEdge("Oslo", 123, "Bergen", 20);
 
-	PRINT(test.HeadVertex->NeighborVertices[0]);
+	PRINT(test.find_Vertex("Oslo")->ListOfEdges[0].Name);
 }

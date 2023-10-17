@@ -6,7 +6,7 @@ class Node
 {
 public:
 	T Data;
-	Node* NextNode;
+	Node* NextNode = nullptr;
 
 	Node(const T& data, Node* nextNode) : Data(data), NextNode(nextNode) {}
 	Node(const T&& data, Node* nextNode) : Data(data), NextNode(nextNode) {}

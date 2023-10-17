@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Code Files\FlexGraph.cpp" />
     <ClCompile Include="Code Files\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
