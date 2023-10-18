@@ -26,5 +26,8 @@
     <ClInclude Include="Code Files\FlexGraph.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FlexTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
