@@ -1,14 +1,18 @@
 #include <iostream>
 
 #include "FlexGraph.h"
+#include "FlexTree.h"
 
 #define PRINT(X) std::cout << (X) << std::endl
 
 int main()
 {
-	FlexGraph<int> test(5);
-	test.create_VertexWithEdge("Bergen", 11, "A", 2);
-	test.create_VertexWithEdge("Oslo", 123, "Bergen", 20);
+	FlexTree<int> Tree(5);
+	Tree.add_Child(Tree.Root, 5);
+	Tree.add_ChildByID(2, 45);
+	Tree.add_ChildByID(2, 11);
+	Tree.add_ChildByID(4, 23);
 
-	PRINT(test.find_Vertex("Oslo")->ListOfEdges[0].Name);
+	PRINT(Tree.find_NodeByID(5)->Data);
+	PRINT(Tree.find_NodeByID(4)->Data);
 }

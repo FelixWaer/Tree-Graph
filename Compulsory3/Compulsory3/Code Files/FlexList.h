@@ -109,6 +109,11 @@ public:
 		return NumberOfElements;
 	}
 
+	bool is_Empty()
+	{
+		return NumberOfElements == 0 ? true : false;
+	}
+
 	T& operator[](size_t listPosition)
 	{
 		if (listPosition >= NumberOfElements)
@@ -205,4 +210,5 @@ private:
 		previousTempNode->NextNode = tempNode->NextNode;
 		delete tempNode;
 	}
+	Node<int>* test = nullptr;
 };
