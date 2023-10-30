@@ -15,8 +15,17 @@ int main()
 	Graph.create_RandomVertex(Graph.get_HeadVertex(), 43);
 
 	std::vector<Vertex<int>*> adjVertices = Graph.get_AdjacentVertices(Graph.get_HeadVertex());
+	PRINT("Number of vertices in Graph");
 	PRINT(Graph.get_GraphSize(Graph.get_HeadVertex()));
+	PRINT("Number of adjacent vertices to Root");
 	PRINT(adjVertices.size());
+
+
+	FlexTree<int> Tree(5);
+	Tree.create_RandomChild(Tree.get_Root(), 650);
+
+	PRINT("Depth of tree");
+	PRINT(Tree.get_TreeDepth(Tree.get_Root()));
 
 	int b;
 	std::cin >> b;

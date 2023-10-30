@@ -208,6 +208,11 @@ public:
 		return treeSize;
 	}
 
+	int get_TreeDepth(TreeNode<T>* node)
+	{
+		return calculate_DepthOfTree(node);
+	}
+
 	bool is_Empty() const
 	{
 		return Root == nullptr;
@@ -254,6 +259,21 @@ private:
 		{
 			calculate_TreeSize(child, treeSize);
 		}
+	}
+
+	int calculate_DepthOfTree(TreeNode<T>* node)
+	{
+		int depth = 0;
+
+		for (TreeNode<T>* node : node->ChildrenList)
+		{
+			int tempDepth = calculate_DepthOfTree(node);
+			if (depth < tempDepth)
+			{
+				depth = tempDepth;
+			}
+		}
+		return depth + 1;
 	}
 
 	//This is my Depth traversal implementation in trees.
