@@ -7,12 +7,17 @@
 
 int main()
 {
-	FlexTree<int> Tree(5);
-	Tree.add_Child(Tree.Root, 5);
-	Tree.add_ChildByID(2, 45);
-	Tree.add_ChildByID(2, 11);
-	Tree.add_ChildByID(4, 23);
+	FlexGraph<int> Graph("Oslo", 5);
+	Graph.create_VertexWithEdge("Hamar", 10, "Oslo", 10);
+	Graph.create_VertexWithEdge("Bergen", 13, "Oslo", 16);
+	Graph.create_VertexWithEdge("Trondheim", 26, "Oslo", 100);
+	Graph.create_VertexWithEdge(Graph.get_VertexByName("Oslo"), 32);
+	Graph.create_RandomVertex(Graph.get_HeadVertex(), 43);
 
-	PRINT(Tree.find_NodeByID(5)->Data);
-	PRINT(Tree.find_NodeByID(4)->Data);
+	std::vector<Vertex<int>*> adjVertices = Graph.get_AdjacentVertices(Graph.get_HeadVertex());
+	PRINT(Graph.get_GraphSize(Graph.get_HeadVertex()));
+	PRINT(adjVertices.size());
+
+	int b;
+	std::cin >> b;
 }

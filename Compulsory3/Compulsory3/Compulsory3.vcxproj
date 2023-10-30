@@ -23,7 +23,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code Files\FlexGraph.h" />
-    <ClInclude Include="Code Files\FlexList.h" />
     <ClInclude Include="Code Files\FlexTree.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

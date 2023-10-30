@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "FlexList.h"
+#include "vector"
 
 template <typename T, typename = void>
 class Edge;
@@ -11,21 +11,28 @@ class Vertex
 {
 public:
 	Vertex() = default;
-	Vertex(std::string name, T& data)
+	Vertex(int id)
+	{
+		ID = id;
+	}
+	Vertex(std::string name, int id, T& data)
 	{
 		Name = name;
+		ID = id;
 		Data = data;
 	}
-	Vertex(std::string name, T&& data)
+	Vertex(std::string name, int id, T&& data)
 	{
 		Name = name;
+		ID = id;
 		Data = data;
 	}
 
 	std::string Name;
+	int ID;
 	T Data;
 
-	FlexList<Edge<T>> ListOfEdges;
+	std::vector<Edge<T>> ListOfEdges;
 
 	friend std::ostream& operator<<(std::ostream& os, const Vertex& vertex)
 	{
@@ -39,10 +46,10 @@ class Edge
 {
 public:
 	Edge() = default;
-	Edge(Vertex<T>* firstVertex_ptr, Vertex<T>* secondVertex_ptr, std::string name, int cost)
+	Edge(Vertex<T>* firstVertex, Vertex<T>* secondVertex, const std::string& name, int cost)
 	{
-		VertexArray[0] = firstVertex_ptr;
-		VertexArray[1] = secondVertex_ptr;
+		FirstVertex = firstVertex;
+		SecondVertex = secondVertex;
 		Name = name;
 		Cost = cost;
 	}
@@ -50,7 +57,8 @@ public:
 	std::string Name;
 	int Cost;
 
-	Vertex<T>* VertexArray[2];
+	Vertex<T>* FirstVertex;
+	Vertex<T>* SecondVertex;
 };
 
 
@@ -58,78 +66,242 @@ template <typename T>
 class FlexGraph
 {
 public:
-	FlexGraph(T& data)
+	FlexGraph()
 	{
-		HeadVertex = create_Vertex("A", data);
+		HeadVertex = nullptr;
 	}
-	FlexGraph(T&& data)
+	FlexGraph(const std::string& name, T& data)
 	{
-		HeadVertex = create_Vertex("A", data);
+		HeadVertex = create_Vertex(name, data);
+	}
+	FlexGraph(const std::string& name, T&& data)
+	{
+		HeadVertex = create_Vertex(name, data);
 	}
 	~FlexGraph()
 	{
-		for (size_t i = 0; i < VertexList.get_ListSize(); i++)
+		for (size_t i = 0; i < VertexList.size(); i++)
 		{
 			delete VertexList[i];
 		}
 	}
 
-	Vertex<T>* create_Vertex(std::string vertexName, T& data)
+	void set_HeadVertex(Vertex<T>* vertex)
 	{
-		Vertex<T>* tempVertex = new Vertex<T>(vertexName, data);
-		VertexList.add_ElementBack(tempVertex);
+		HeadVertex = vertex;
+	}
+
+	Vertex<T>* get_HeadVertex()
+	{
+		return HeadVertex;
+	}
+
+	Vertex<T>* create_Vertex()
+	{
+		Vertex<T>* tempVertex = new Vertex<T>(IDCounter);
+		VertexList.emplace_back(tempVertex);
+		IDCounter++;
 
 		return tempVertex;
 	}
 
-	Vertex<T>* create_Vertex(std::string vertexName, T&& data)
+	Vertex<T>* create_Vertex(const std::string& vertexName, T& data)
 	{
-		Vertex<T>* tempVertex = new Vertex<T>(vertexName, data);
-		VertexList.add_ElementBack(tempVertex);
+		Vertex<T>* tempVertex = new Vertex<T>(vertexName, IDCounter, data);
+		VertexList.emplace_back(tempVertex);
+		IDCounter++;
 
 		return tempVertex;
 	}
 
-	void create_VertexWithEdge(std::string vertexName, T& data, std::string otherVertexName, int edgeCost)
+	Vertex<T>* create_Vertex(const std::string& vertexName, T&& data)
 	{
-		Vertex<T>* otherVertex = find_Vertex(otherVertexName);
+		Vertex<T>* tempVertex = new Vertex<T>(vertexName, IDCounter, data);
+		VertexList.emplace_back(tempVertex);
+		IDCounter++;
 
-		Vertex<T>* tempVertex = new Vertex<T>(vertexName, data);
-		std::string tempEdgeName = otherVertex->Name + "-" + vertexName;
-		Edge<T> newEdge(otherVertex, tempVertex, tempEdgeName, edgeCost);
-
-		otherVertex->ListOfEdges.add_ElementBack(newEdge);
-		tempVertex->ListOfEdges.add_ElementBack(newEdge);
-
-		VertexList.add_ElementBack(tempVertex);
+		return tempVertex;
 	}
 
-	void create_VertexWithEdge(std::string vertexName, T&& data, std::string otherVertexName, int edgeCost)
+	Vertex<T>* create_VertexWithEdge(Vertex<T>* otherVertex,  int edgeCost)
 	{
-		Vertex<T>* otherVertex = find_Vertex(otherVertexName);
+		Vertex<T>* tempVertex = new Vertex<T>(IDCounter);
+		std::string tempEdgeName = " ";
 
-		Vertex<T>* tempVertex = new Vertex<T>(vertexName, data);
-		std::string tempEdgeName = otherVertex->Name + "-" + vertexName;
-		Edge<T> newEdge(otherVertex, tempVertex, tempEdgeName, edgeCost);
+		tempVertex->ListOfEdges.emplace_back(Edge<T>(tempVertex, otherVertex, tempEdgeName, edgeCost));
+		otherVertex->ListOfEdges.emplace_back(Edge<T>(otherVertex, tempVertex, tempEdgeName, edgeCost));
 
-		otherVertex->ListOfEdges.add_ElementBack(newEdge);
-		tempVertex->ListOfEdges.add_ElementBack(newEdge);
+		VertexList.emplace_back(tempVertex);
+		IDCounter++;
 
-		VertexList.add_ElementBack(tempVertex);
+		return tempVertex;
 	}
 
-	Vertex<T>* find_Vertex(std::string nameOfVertex)
+	Vertex<T>* create_VertexWithEdge(const std::string& vertexName, T& data, const std::string& otherVertexName, int edgeCost)
 	{
-		for (size_t i = 0; i < VertexList.get_ListSize(); i++)
+		Vertex<T>* otherVertex = get_VertexByName(otherVertexName);
+
+		Vertex<T>* tempVertex = new Vertex<T>(vertexName, IDCounter, data);
+		std::string tempEdgeName = vertexName + "-" + otherVertex->Name;
+
+		tempVertex->ListOfEdges.emplace_back(Edge<T>(tempVertex, otherVertex, tempEdgeName, edgeCost));
+		otherVertex->ListOfEdges.emplace_back(Edge<T>(otherVertex, tempVertex, tempEdgeName, edgeCost));
+
+		VertexList.emplace_back(tempVertex);
+		IDCounter++;
+
+		return tempVertex;
+	}
+
+	Vertex<T>* create_VertexWithEdge(const std::string& vertexName, T&& data, const std::string& otherVertexName, int edgeCost)
+	{
+		Vertex<T>* otherVertex = get_VertexByName(otherVertexName);
+		Vertex<T>* tempVertex = new Vertex<T>(vertexName, IDCounter, data);
+
+		std::string tempEdgeName = vertexName + "-" + otherVertex->Name;
+
+		tempVertex->ListOfEdges.emplace_back(Edge<T>(tempVertex, otherVertex, tempEdgeName, edgeCost));
+		otherVertex->ListOfEdges.emplace_back(Edge<T>(otherVertex, tempVertex, tempEdgeName, edgeCost));
+
+		VertexList.emplace_back(tempVertex);
+		IDCounter++;
+
+		return tempVertex;
+	}
+
+	Vertex<T>* create_RandomVertex(Vertex<T>* vertex, int numberOfRandom)
+	{
+		srand(time(NULL));
+		if (vertex == nullptr)
+		{
+			 vertex = create_Vertex();
+			 numberOfRandom--;
+		}
+
+		for (int i = 0; i < numberOfRandom; i++)
+		{
+			create_VertexWithEdge(VertexList[rand() % VertexList.size()], rand());
+		}
+
+		return vertex;
+	}
+
+	void create_Edge(const std::string& firstVertexName, const std::string& secondVertexName, int edgeCost)
+	{
+		Vertex<T>* firstVertex = get_VertexByName(firstVertexName);
+		Vertex<T>* secondVertex = get_VertexByName(secondVertexName);
+
+		std::string tempEdgeName = firstVertex->Name + "-" + secondVertex->Name;
+
+		firstVertex->ListOfEdges.emplace_back(Edge<T>(firstVertex, secondVertex, tempEdgeName, edgeCost));
+		secondVertex->ListOfEdges.emplace_back(Edge<T>(secondVertex, firstVertex, tempEdgeName, edgeCost));
+	}
+
+	void delete_Vertex(Vertex<T>* vertex)
+	{
+		for (Edge<T>& edge : vertex->ListOfEdges)
+		{
+			delete_Edge(edge);
+		}
+		for (size_t i = 0; i < VertexList.size(); i++)
+		{
+			if (VertexList[i] == vertex)
+			{
+				VertexList.erase(VertexList.begin() + i);
+			}
+		}
+
+		delete vertex;
+	}
+
+	void delete_Edge(Edge<T> edge)
+	{
+		Vertex<T>* firstVertex = edge.FirstVertex;
+		Vertex<T>* secondVertex = edge.SecondVertex;
+		for (size_t i = 0; i < secondVertex->ListOfEdges.size(); i++)
+		{
+			if (secondVertex->ListOfEdges[i].Name == edge.Name)
+			{
+				secondVertex->ListOfEdges.erase(secondVertex->ListOfEdges.begin() + i);
+				break;
+			}
+		}
+		for (size_t i = 0; i < firstVertex->ListOfEdges.size(); i++)
+		{
+			if (firstVertex->ListOfEdges[i].Name == edge.Name)
+			{
+				firstVertex->ListOfEdges.erase(firstVertex->ListOfEdges.begin() + i);
+				break;
+			}
+		}
+	}
+
+	Vertex<T>* get_VertexByName(const std::string& nameOfVertex)
+	{
+		for (size_t i = 0; i < VertexList.size(); i++)
 		{
 			if (VertexList[i]->Name == nameOfVertex)
 			{
 				return VertexList[i];
 			}
 		}
-		throw std::runtime_error("Could not find Vertex");
+		return nullptr;
 	}
+
+	std::vector<Vertex<T>*> get_AdjacentVertices(Vertex<T>* vertex)
+	{
+		std::vector<Vertex<T>*> tempVector;
+
+		for (Edge<T>& edge : vertex->ListOfEdges)
+		{
+			tempVector.emplace_back(edge.SecondVertex);
+		}
+
+		return tempVector;
+	}
+
+	std::vector<Vertex<T>*> get_Vertices() const
+	{
+		return VertexList;
+	}
+
+	size_t get_GraphSize(Vertex<T>* vertex)
+	{
+		std::vector<Vertex<T>*> tempVector;
+		calculate_GraphSize(vertex, tempVector);
+
+		return tempVector.size();
+	}
+
+	bool is_Empty()
+	{
+		return VertexList.size() == 0;
+	}
+
 private:
 	Vertex<T>* HeadVertex;
-	FlexList<Vertex<T>*> VertexList;
+	std::vector<Vertex<T>*> VertexList;
+	int IDCounter = 1;
+
+	//This is my Depth first search traversal implementation in my graph.
+	//I use it to calculate in the graph how many vertices are connected together in the graph.
+	void calculate_GraphSize(Vertex<T>* vertex, std::vector<Vertex<T>*>& vector)
+	{
+		vector.emplace_back(vertex);
+		for (Edge<T>& edge : vertex->ListOfEdges)
+		{
+			bool visited = false;
+			for (Vertex<T>* vertex : vector)
+			{
+				if (edge.SecondVertex ==  vertex)
+				{
+					visited = true;
+				}
+			}
+			if (visited == false)
+			{
+				calculate_GraphSize(edge.SecondVertex, vector);
+			}
+		}
+	}
 };
